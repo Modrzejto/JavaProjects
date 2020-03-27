@@ -1,2 +1,1 @@
-# JavaProjects
- Samodzielne projekty w Javie
+# Sklep
