@@ -82,7 +82,7 @@ public class BankMetody {
         String[] ids = new String[50];
 
         try {
-            String url = "jdbc:sqlite:D:\\SQLiteDB\\Bank.db";
+            String url = getDir;
             c = DriverManager.getConnection(url);
             c.setAutoCommit(false);
 
@@ -204,6 +204,62 @@ public class BankMetody {
         JFrame frameZare = new JFrame("Zarejestruj");
         frameZare.setSize(230, 400);
 
+        int countLogin = 0;
+        int countPwd = 0;
+        int countIDs = 0;
+
+        String[] logins = new String[50];
+        String[] pwds = new String[50];
+        int[] ids = new int[50];
+
+        Connection c2 = null;
+        Statement stmt3 = null;
+
+        try {
+            String url = getDir;
+            c2 = DriverManager.getConnection(url);
+            c2.setAutoCommit(false);
+
+            stmt3 = c.createStatement();
+            ResultSet rs = stmt3.executeQuery("SELECT * FROM Logins;");
+
+            while (rs.next()) {
+                int id = rs.getInt("IDLogin");
+                login = rs.getString("Login");
+                pwd = rs.getString("Password");
+
+                if (countIDs < ids.length) {
+                    ids[countIDs] = id;
+                    countIDs++;
+                }
+
+                if (countLogin < logins.length) {
+                    logins[countLogin] = login;
+                    countLogin++;
+                }
+
+                if (countPwd < pwds.length) {
+                    pwds[countPwd] = pwd;
+                    countPwd++;
+                }
+            }
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+        finally {
+            try {
+                if (c2 != null) {
+                    c2.close();
+                }
+                if (stmt3 != null) {
+                    stmt3.close();
+                }
+            }
+            catch (Exception exc) {
+                System.out.println(exc);
+            }
+        }
+
         Connection c = null;
         Statement stmt = null;
 
@@ -294,11 +350,26 @@ public class BankMetody {
                 String getImie = imieField.getText();
                 String getNazw = nazwTF.getText();
 
-                if (passText.equals(passChkText)) {
-                    itb.insertIntoTB(getID, getLogin, passText, getImie, getNazw);
-                    JOptionPane.showMessageDialog(frameZare, "Konto utworzone pomyślnie");
-                    frameZare.dispose();
-                    Welcome();
+                if (passText.equals(passChkText) && passText != null && passChkText != null) {
+                    for (int i = 0; i < ids.length; i++) {
+                        if (getLogin != null && getImie != null && getNazw != null) {
+                            if (getID != ids[i]) {
+                                itb.insertIntoTB(getID, getLogin, passText, getImie, getNazw);
+                                JOptionPane.showMessageDialog(frameZare, "Konto utworzone pomyślnie");
+                                frameZare.dispose();
+                                Welcome();
+                                return;
+                            }
+                            else {
+                                JOptionPane.showMessageDialog(frameZare, "Podane ID już istnieje", "Uwaga", JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+                        }
+                        else {
+                            JOptionPane.showMessageDialog(frameZare, "Wartości nie mogą być puste", "Uwaga", JOptionPane.WARNING_MESSAGE);
+                            return;
+                        }
+                    }
                 }
                 else {
                     JOptionPane.showMessageDialog(frameZare, "Hasła nie są zgodne", "Błąd", JOptionPane.ERROR_MESSAGE);
